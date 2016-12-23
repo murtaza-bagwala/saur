@@ -6,19 +6,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.saur.Constants.BLANK_SPACE;
+import static org.saur.Constants.REGEX;
+
 public class TreeParser {
+
     public static Map<String, Node> parseTree(List<String> paths) {
         Map<String, Node> tree = new HashMap<String, Node>();
-        for (String s : paths) {
-            String[] strings = s.replaceFirst("/", "").split("/");
+        for (String path : paths) {
+            String[] separatedPaths = path.replaceFirst(REGEX, BLANK_SPACE).split(REGEX);
             Node previousNode = null;
-            String temp = "";
-            for (String g : strings) {
-                temp = temp + "/" + g;
+            String temp = BLANK_SPACE;
+            for (String separatedPath : separatedPaths) {
+                temp = temp + REGEX + separatedPath;
                 if (!tree.containsKey(temp)) {
-                    Node currentNode = new Node("/" + g);
-                    if (tree.containsKey(temp.replace(currentNode.getPathName(), ""))) {
-                        previousNode = tree.get(temp.replace(currentNode.getPathName(), ""));
+                    Node currentNode = new Node(REGEX + separatedPath);
+                    if (tree.containsKey(temp.replace(currentNode.getPathName(), BLANK_SPACE))) {
+                        previousNode = tree.get(temp.replace(currentNode.getPathName(), BLANK_SPACE));
                     }
                     if (previousNode != null) {
                         previousNode.addNode(currentNode, temp);
@@ -26,7 +30,6 @@ public class TreeParser {
                     currentNode.setPath(temp);
                     currentNode.setParent(previousNode);
                     tree.put(temp, currentNode);
-                    System.out.println(temp);
                 }
             }
         }

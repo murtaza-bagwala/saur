@@ -67,3 +67,16 @@ buildscript {
 	}
 }
 
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0"
+	}
+}
+apply plugin: "com.jfrog.artifactory"
+
+plugins {
+	id "com.jfrog.artifactory" version "4.4.0"
+}

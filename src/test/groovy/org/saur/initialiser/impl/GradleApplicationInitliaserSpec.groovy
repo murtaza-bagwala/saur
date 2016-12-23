@@ -18,7 +18,6 @@ class GradleApplicationInitliaserSpec extends Specification {
     @Shared
     Initialiser gradleAppInitialiser
 
-
     File rootDirectory
 
     @Shared
