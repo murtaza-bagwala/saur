@@ -1,11 +1,16 @@
 package org.saur.generator.impl
 import com.google.inject.Inject
+import org.apache.commons.lang3.StringUtils
 import org.saur.generator.AbstractCodeGenerator
 import org.saur.model.Node
 import org.saur.model.Router
 
+import static org.saur.Constants.BLANK_SPACE
 import static org.saur.Constants.PACKAGE
+import static org.saur.Constants.REGEX
+import static org.saur.Constants.RESOURCE_PACKAGE
 import static org.saur.Constants.ROOT_ROUTER_KEY
+import static org.saur.Constants.ROUTER_PACKAGE
 
 class RootRouterGenerator extends AbstractCodeGenerator {
     static final String ROOT_ROUTER_PATH = '${packageName}/${rootRouter}.groovy'
@@ -35,16 +40,17 @@ class RootRouterGenerator extends AbstractCodeGenerator {
     @Override
     protected void createBindings(Node node) {
         def router = new Router("path": node.getPathName(), "pathRouter": node
-                .hasChildren() ? node.getPathName().replace("/", "") +
-                "Router" : node.getPathName().replace("/", "") + "Resource");
+                .hasChildren() ? StringUtils.capitalize(node.getPathName().replace(REGEX, BLANK_SPACE)) + StringUtils
+                .capitalize(ROUTER_PACKAGE) : StringUtils.capitalize(node.getPathName().replace(REGEX, BLANK_SPACE))
+                + StringUtils
+                .capitalize(RESOURCE_PACKAGE));
         this.modelList.add(router)
-        this.binding.putAll(["attachSubRouter" : this.modelList.join("\n")])
+        this.binding.putAll(["attachSubRouter": this.modelList.join("\n")])
     }
 
     public void resetBindings() {
         this.binding.clear();
         this.modelList.clear();
     }
-
 
 }

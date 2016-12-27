@@ -3,6 +3,7 @@ import com.google.inject.Inject
 import io.swagger.models.Path
 import io.swagger.models.Swagger
 import io.swagger.parser.SwaggerParser
+import org.apache.commons.lang3.StringUtils
 import org.saur.generator.impl.PingResourceGenerator
 import org.saur.generator.impl.RootRouterGenerator
 import org.saur.initilaiser.Initialiser
@@ -10,6 +11,8 @@ import org.saur.initilaiser.TreeParser
 import org.saur.model.Node
 
 import java.nio.file.Paths
+
+import static org.saur.Constants.*
 
 class GradleApplicationInitialiser implements Initialiser {
     private final RootRouterGenerator  rootRouterCreator
@@ -46,12 +49,6 @@ class GradleApplicationInitialiser implements Initialiser {
             projectRootDirectory.deleteDir()
         }
         projectRootDirectory.mkdir()
-
-       /* def routerDir = Paths.get(projectRootDirectory.toString() + "/router").toFile()
-        routerDir.mkdirs()
-        def resourceDir = Paths.get(projectRootDirectory.toString() + "/resource").toFile()
-        resourceDir.mkdirs()*/
-
         return projectRootDirectory
     }
 
@@ -60,10 +57,10 @@ class GradleApplicationInitialiser implements Initialiser {
         List <Node> nodeList = TreeParser.parseTree(paths.keySet().asList()).values().asList();
         List<Node> rootNodes = nodeList.findAll {node -> node.path.equals(node.pathName)}
         this.projectRootDir = projectRootDir
-        def routerClassFile = this.rootRouterCreator.createFile(projectRootDir, "RootRouter", "router")
+        def routerClassFile = this.rootRouterCreator.createFile(projectRootDir, DEFAULT_ROOT_ROUTER, ROUTER_PACKAGE)
         rootNodes.forEach {node -> this.rootRouterCreator.createBindings(node)}
-        def rootRouterTemaplte = this.rootRouterCreator.createCode(rootRouterTemplate)
-        routerClassFile.write(rootRouterTemaplte)
+        def rootRouterTemplate = this.rootRouterCreator.createCode(rootRouterTemplate)
+        routerClassFile.write(rootRouterTemplate)
         writeMetaRouterClass(rootNodes)
     }
 
@@ -73,23 +70,25 @@ class GradleApplicationInitialiser implements Initialiser {
             String fileName;
             String packageName;
             if (node.hasChildren()) {
-                fileName = node.getPathName().replace("/", "") + "Router"
-                packageName = "router";
+                fileName = StringUtils.capitalize(node.getPathName().replace(REGEX, BLANK_SPACE)) + StringUtils
+                        .capitalize(ROUTER_PACKAGE)
+                packageName = ROUTER_PACKAGE;
             } else {
-                fileName = node.getPathName().replace("/", "") + "Resource"
-                packageName = "resource";
+                fileName = StringUtils.capitalize(node.getPathName().replace(REGEX, BLANK_SPACE)) + StringUtils
+                        .capitalize(RESOURCE_PACKAGE)
+                packageName = RESOURCE_PACKAGE;
             }
             def routerClassFile = this.rootRouterCreator.createFile(projectRootDir, fileName, packageName)
             List<Node> childNodes = node.getChildren().values().asList()
-            def rootRouterTemaplte
+            def metaRouterTemplate
             if (childNodes.isEmpty()) {
-                 rootRouterTemaplte = this.rootRouterCreator.createCode(pingResourceTemplate)
+                metaRouterTemplate = this.rootRouterCreator.createCode(pingResourceTemplate)
             } else {
                 childNodes.forEach { childNode -> this.rootRouterCreator.createBindings(childNode) }
-                 rootRouterTemaplte = this.rootRouterCreator.createCode(rootRouterTemplate)
+                metaRouterTemplate = this.rootRouterCreator.createCode(rootRouterTemplate)
             }
 
-            routerClassFile.write(rootRouterTemaplte)
+            routerClassFile.write(metaRouterTemplate)
             writeMetaRouterClass(childNodes)
 
         }

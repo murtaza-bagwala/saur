@@ -4,7 +4,8 @@ package org.saur;
 public interface Constants {
     String FORMATTER = "    ";
     String DEFAULT_ROOT_ROUTER      =  "RootRouter";
-    String DEFAULT_PACKAGE      =  "router";
+    String ROUTER_PACKAGE      =  "router";
+    String RESOURCE_PACKAGE      =  "resource";
     String DEFAULT_PROJECT_NAME     =  "foo";
     String ROOT_ROUTER_KEY          =  "rootRouter";
     String GROUP_ID_KEY             =  "groupId";
